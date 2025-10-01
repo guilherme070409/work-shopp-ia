@@ -1,0 +1,121 @@
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: linear-gradient(135deg, #f0f4f8 0%, #d9e2ec 100%);
+    margin: 0;
+    padding: 20px;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+h1 {
+    color: #1a3c6d;
+    font-size: clamp(1.8rem, 5vw, 2.2rem);
+    margin-bottom: 30px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+#calendar-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+    gap: 25px;
+    max-width: 1400px;
+    width: 100%;
+    padding: 15px;
+}
+
+.month {
+    background-color: #fff;
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.12);
+    transition: transform 0.3s ease;
+    min-height: 400px; /* Meses maiores */
+}
+
+.month:hover {
+    transform: translateY(-8px);
+}
+
+.month h2 {
+    margin: 0;
+    padding: 20px;
+    background: linear-gradient(to right, #007bff, #005bb5);
+    color: white;
+    font-size: clamp(1.2rem, 3vw, 1.4rem);
+    text-align: center;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.table th, .table td {
+    padding: 15px; /* Mais espaço pros dias */
+    text-align: center;
+    font-size: clamp(0.9rem, 2.5vw, 1rem);
+}
+
+.table th {
+    background-color: #e9ecef;
+    color: #333;
+    font-weight: 600;
+}
+
+.day {
+    cursor: pointer;
+    position: relative;
+    background-color: #fff;
+    transition: background-color 0.2s ease;
+    min-height: 50px; /* Dias maiores */
+}
+
+.day:hover {
+    background-color: #e3f2fd;
+}
+
+.day.today {
+    background-color: #007bff;
+    color: white;
+    font-weight: bold;
+    border-radius: 6px;
+}
+
+.event {
+    background-color: #ff9500;
+    color: white;
+    font-size: clamp(0.75rem, 2vw, 0.85rem);
+    margin-top: 5px;
+    padding: 4px 6px;
+    border-radius: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    #calendar-container {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+
+    .month {
+        width: 100%;
+        max-width: 400px;
+        margin: 0 auto;
+    }
+
+    .table th, .table td {
+        padding: 10px;
+    }
+}
+
+@media (min-width: 1200px) {
+    .month {
+        max-width: 420px;
+    }
+}

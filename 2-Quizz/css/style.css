@@ -1,69 +1,195 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
 
 body {
-    font-family: Arial, sans-serif;
-    background-color: #f0f0f0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: #333;
-    display: flex;
-    justify-content: center;
-    align-items: center;
     min-height: 100vh;
-    margin: 0;
-    background-image: linear-gradient(to bottom, #ffcccb, #add8e6);
+    padding: 20px;
 }
 
 .container {
-    background-color: #fff;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-    max-width: 600px;
-    width: 90%;
-    text-align: center;
+    max-width: 800px;
+    margin: 0 auto;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 20px;
+    padding: 40px;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+    backdrop-filter: blur(10px);
 }
 
 h1 {
-    color: #ff69b4;
-    font-size: 2em;
-    margin-bottom: 20px;
+    text-align: center;
+    color: #764ba2;
+    margin-bottom: 30px;
+    font-size: 2.8em;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
 }
 
 h2 {
-    color: #333;
-    font-size: 1.5em;
-    margin-bottom: 15px;
+    color: #2d3748;
+    margin-bottom: 25px;
+    font-size: 1.4em;
+    line-height: 1.4;
+    text-align: center;
+}
+
+/* Estilo das opções */
+#quiz-form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin: 25px 0;
 }
 
 label {
     display: block;
-    margin: 10px 0;
+    padding: 18px;
+    background: #f7fafc;
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
     font-size: 1.1em;
+    font-weight: 500;
+}
+
+label:hover {
+    background: #edf2f7;
+    border-color: #667eea;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
 }
 
 input[type="radio"] {
-    margin-right: 10px;
+    margin-right: 15px;
+    transform: scale(1.3);
 }
 
+/* Estados das respostas */
+.correct-answer {
+    background: linear-gradient(135deg, #48bb78, #38a169) !important;
+    border-color: #2f855a !important;
+    color: white;
+    animation: pulse-green 0.6s ease;
+}
+
+.incorrect-answer {
+    background: linear-gradient(135deg, #f56565, #e53e3e) !important;
+    border-color: #c53030 !important;
+    color: white;
+    animation: shake 0.5s ease;
+}
+
+.correct-answer::after {
+    content: " ✅";
+    font-weight: bold;
+    margin-left: 10px;
+}
+
+.incorrect-answer::after {
+    content: " ❌";
+    font-weight: bold;
+    margin-left: 10px;
+}
+
+/* Animações */
+@keyframes pulse-green {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.02); }
+    100% { transform: scale(1); }
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+}
+
+/* Botões */
 button {
-    background-color: #ff69b4;
-    color: #fff;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
     border: none;
-    padding: 10px 20px;
-    font-size: 1em;
-    border-radius: 5px;
+    padding: 15px 30px;
+    border-radius: 10px;
     cursor: pointer;
-    margin-top: 20px;
+    font-size: 1.1em;
+    font-weight: bold;
+    margin: 10px;
+    transition: all 0.3s ease;
 }
 
 button:hover {
-    background-color: #ff1493;
+    transform: translateY(-3px);
+    box-shadow: 0 7px 20px rgba(102, 126, 234, 0.4);
 }
 
+button:active {
+    transform: translateY(-1px);
+}
+
+/* Mensagens */
 .correct {
-    color: #28a745;
+    color: #2d3748;
     font-weight: bold;
+    font-size: 1.2em;
+    text-align: center;
+    padding: 15px;
+    background: #c6f6d5;
+    border-radius: 8px;
+    margin: 15px 0;
+    border: 2px solid #48bb78;
 }
 
 .incorrect {
-    color: #dc3545;
+    color: #2d3748;
     font-weight: bold;
+    font-size: 1.2em;
+    text-align: center;
+    padding: 15px;
+    background: #fed7d7;
+    border-radius: 8px;
+    margin: 15px 0;
+    border: 2px solid #f56565;
+}
+
+.loading {
+    text-align: center;
+    padding: 20px;
+    color: #667eea;
+    font-size: 1.2em;
+}
+
+.question-meta {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #718096;
+    font-style: italic;
+}
+
+/* Responsividade */
+@media (max-width: 600px) {
+    .container {
+        padding: 20px;
+        margin: 10px;
+    }
+    
+    h1 {
+        font-size: 2em;
+    }
+    
+    label {
+        padding: 15px;
+        font-size: 1em;
+    }
+    
+    button {
+        padding: 12px 25px;
+        font-size: 1em;
+    }
 }

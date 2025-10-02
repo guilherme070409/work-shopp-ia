@@ -8,208 +8,323 @@ header('Content-Type: text/html; charset=UTF-8');
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Calendário do Tilambucano - 2026</title>
     <style>
-   body {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-    background: linear-gradient(135deg, #f0f4f8 0%, #d9e2ec 100%);
-    margin: 0;
-    padding: 20px;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-h1 {
-    color: #1a3c6d;
-    font-size: clamp(1.8rem, 5vw, 2.2rem);
-    margin-bottom: 20px;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-}
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #f0f4f8 0%, #d9e2ec 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
 
-.controls {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 20px;
-    align-items: center;
-}
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
 
-#month-selector {
-    padding: 8px;
-    font-size: clamp(0.9rem, 2.5vw, 1rem);
-    border-radius: 6px;
-    border: 1px solid #ccc;
-    background-color: #fff;
-    cursor: pointer;
-}
+        h1 {
+            color: #1a3c6d;
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            text-align: center;
+            text-transform: uppercase;
+        }
 
-button {
-    padding: 8px 15px;
-    font-size: clamp(0.9rem, 2.5vw, 1rem);
-    border: none;
-    background-color: #007bff;
-    color: white;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: background-color 0.2s ease;
-}
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 30px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
 
-button:hover {
-    background-color: #005bb5;
-}
+        #month-selector {
+            padding: 12px;
+            font-size: 1.1rem;
+            border-radius: 8px;
+            border: 2px solid #007bff;
+            background-color: #fff;
+            cursor: pointer;
+        }
 
-#calendar-container {
-    display: flex;
-    justify-content: center;
-    width: 100%;
-    max-width: 800px;
-}
+        button {
+            padding: 12px 20px;
+            font-size: 1.1rem;
+            border: none;
+            background-color: #007bff;
+            color: white;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
 
-.month {
-    background-color: #fff;
-    border-radius: 14px;
-    overflow-x: auto;
-    overflow-y: hidden;
-    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.12);
-    transition: transform 0.3s ease;
-    width: 100%;
-    min-height: 500px;
-    white-space: nowrap;
-}
+        button:hover {
+            background-color: #005bb5;
+        }
 
-.month:hover {
-    transform: translateY(-8px);
-}
+        .calendar {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        }
 
-.month h2 {
-    margin: 0;
-    padding: 20px;
-    background: linear-gradient(to right, #003087, #005bb5);
-    color: white;
-    font-size: clamp(1.2rem, 3vw, 1.4rem);
-    text-align: center;
-}
+        .calendar-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
 
-.table {
-    width: 100%;
-    border-collapse: collapse;
-    display: inline-table;
-    min-width: 800px;
-    table-layout: fixed;
-}
+        .calendar-header h2 {
+            color: #1a3c6d;
+            font-size: 2rem;
+            margin: 0;
+        }
 
-.table th, .table td {
-    padding: 20px;
-    text-align: center;
-    font-size: clamp(1rem, 2.5vw, 1.2rem);
-    min-width: 120px;
-    word-wrap: break-word;
-    overflow: hidden;
-}
+        .week-days {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 8px;
+            margin-bottom: 10px;
+        }
 
-.table th {
-    background-color: #e9ecef;
-    color: #333;
-    font-weight: 600;
-}
+        .week-day {
+            text-align: center;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            font-weight: bold;
+            color: #333;
+        }
 
-.day {
-    cursor: pointer;
-    position: relative;
-    background-color: #fff;
-    transition: background-color 0.2s ease;
-    min-height: 80px;
-    word-wrap: break-word;
-    overflow: hidden;
-}
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 8px;
+        }
 
-.day:hover {
-    background-color: #e3f2fd;
-}
+        .calendar-day {
+            min-height: 120px;
+            background: #fff;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            padding: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+        }
 
-.day.today {
-    background-color: #007bff;
-    color: white;
-    font-weight: bold;
-    border-radius: 6px;
-}
+        .calendar-day:hover {
+            border-color: #007bff;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 123, 255, 0.2);
+        }
 
-.event {
-    background-color: #ff9500;
-    color: white;
-    font-size: clamp(0.8rem, 2vw, 0.9rem);
-    margin-top: 5px;
-    padding: 5px 8px;
-    border-radius: 4px;
-    word-wrap: break-word;
-    max-width: 100%;
-    overflow: hidden;
-    position: relative;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
+        .calendar-day.empty {
+            background: #f8f9fa;
+            border: 2px dashed #dee2e6;
+            cursor: default;
+        }
 
-.event .delete-event {
-    background-color: #ff4444;
-    padding: 2px 6px;
-    border: none;
-    border-radius: 3px;
-    cursor: pointer;
-    font-size: 0.7rem;
-    margin-left: 5px;
-    white-space: nowrap;
-}
+        .calendar-day.empty:hover {
+            transform: none;
+            border-color: #dee2e6;
+            box-shadow: none;
+        }
 
-.event .delete-event:hover {
-    background-color: #cc0000;
-}
+        .day-number {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #333;
+        }
 
-@media (max-width: 800px) {
-    #calendar-container { padding: 0 10px; max-width: 600px; }
-    .month { min-height: 400px; }
-    .table th, .table td { padding: 15px; min-width: 100px; }
-    .table { min-width: 600px; }
-}
+        .calendar-day.today .day-number {
+            color: #007bff;
+            background: #e6f0fa;
+            padding: 4px 8px;
+            border-radius: 4px;
+            display: inline-block;
+        }
 
-@media (max-width: 600px) {
-    #calendar-container { padding: 0 10px; }
-    .month { max-width: 100%; min-height: 350px; }
-    .table th, .table td { padding: 10px; min-width: 80px; }
-    .table { min-width: 480px; }
-    .controls { flex-direction: column; gap: 8px; }
-    button, #month-selector { width: 100%; max-width: 200px; }
-}
+        .events {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            overflow-y: auto;
+            max-height: 80px;
+        }
+
+        .event {
+            background: #ff9500;
+            color: #000;
+            padding: 6px 8px;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            word-wrap: break-word;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .event-text {
+            flex: 1;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .event-tooltip {
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #333;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            white-space: nowrap;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            margin-bottom: 5px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .event-tooltip::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 6px solid transparent;
+            border-top-color: #333;
+        }
+
+        .event:hover .event-tooltip {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .delete-event {
+            background: #ff4444;
+            border: none;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 0.7rem;
+            margin-left: 5px;
+        }
+
+        .delete-event:hover {
+            background: #cc0000;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .calendar-day {
+                min-height: 100px;
+                padding: 8px;
+            }
+            
+            .week-day, .day-number {
+                font-size: 0.9rem;
+            }
+            
+            .event {
+                font-size: 0.75rem;
+                padding: 4px 6px;
+            }
+            
+            .event-tooltip {
+                font-size: 0.7rem;
+                padding: 6px 10px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .calendar-day {
+                min-height: 80px;
+            }
+            
+            .week-days, .calendar-grid {
+                gap: 4px;
+            }
+            
+            .week-day, .calendar-day {
+                padding: 8px 4px;
+            }
+        }
     </style>
 </head>
 <body>
-    <h1>Calendário Brabo - 2026</h1>
-    <div class="controls">
-        <button id="prev-month">◄ Anterior</button>
-        <select id="month-selector">
-            <option value="0">Janeiro</option>
-            <option value="1">Fevereiro</option>
-            <option value="2">Março</option>
-            <option value="3">Abril</option>
-            <option value="4">Maio</option>
-            <option value="5">Junho</option>
-            <option value="6">Julho</option>
-            <option value="7">Agosto</option>
-            <option value="8">Setembro</option>
-            <option value="9">Outubro</option>
-            <option value="10">Novembro</option>
-            <option value="11">Dezembro</option>
-        </select>
-        <button id="next-month">Próximo ►</button>
+    <div class="container">
+        <h1>Calendário Brabo - 2026</h1>
+        
+        <div class="controls">
+            <button id="prev-month">◄ Anterior</button>
+            <select id="month-selector">
+                <option value="0">Janeiro</option>
+                <option value="1">Fevereiro</option>
+                <option value="2">Março</option>
+                <option value="3">Abril</option>
+                <option value="4">Maio</option>
+                <option value="5">Junho</option>
+                <option value="6">Julho</option>
+                <option value="7">Agosto</option>
+                <option value="8">Setembro</option>
+                <option value="9">Outubro</option>
+                <option value="10">Novembro</option>
+                <option value="11">Dezembro</option>
+            </select>
+            <button id="next-month">Próximo ►</button>
+        </div>
+
+        <div class="calendar">
+            <div class="calendar-header">
+                <h2 id="current-month">Janeiro 2026</h2>
+            </div>
+            
+            <div class="week-days">
+                <div class="week-day">Dom</div>
+                <div class="week-day">Seg</div>
+                <div class="week-day">Ter</div>
+                <div class="week-day">Qua</div>
+                <div class="week-day">Qui</div>
+                <div class="week-day">Sex</div>
+                <div class="week-day">Sáb</div>
+            </div>
+            
+            <div class="calendar-grid" id="calendar-grid">
+                <!-- Os dias serão gerados pelo JavaScript -->
+            </div>
+        </div>
     </div>
-    <div id="calendar-container"></div>
 
     <script>
-        console.log('Script carregado!');
+        let currentMonth = new Date().getMonth();
+        const currentYear = 2026;
 
         const CalendarAPI = {
             addEvent: function(year, month, day, description) {
-                console.log(`Adicionando evento: ${year}-${month + 1}-${day} - ${description}`);
                 const events = getEvents();
                 const dateKey = `${year}-${month + 1}-${day}`;
                 if (!events[dateKey]) events[dateKey] = [];
@@ -217,13 +332,7 @@ button:hover {
                 saveEvents(events);
                 renderCalendar(currentMonth);
             },
-            getEventsForDate: function(year, month, day) {
-                const events = getEvents();
-                const dateKey = `${year}-${month + 1}-${day}`;
-                return events[dateKey] || [];
-            },
             deleteEvent: function(year, month, day, description) {
-                console.log(`Apagando evento: ${year}-${month + 1}-${day} - ${description}`);
                 const events = getEvents();
                 const dateKey = `${year}-${month + 1}-${day}`;
                 if (events[dateKey]) {
@@ -235,10 +344,6 @@ button:hover {
                         renderCalendar(currentMonth);
                     }
                 }
-            },
-            clearEvents: function() {
-                localStorage.removeItem('calendarEvents');
-                renderCalendar(currentMonth);
             }
         };
 
@@ -250,118 +355,120 @@ button:hover {
             localStorage.setItem('calendarEvents', JSON.stringify(events));
         }
 
-        let currentMonth = new Date().getMonth(); // Começa no mês atual de 2025, mas ajusta pra 2026
-
         function renderCalendar(month) {
-            console.log(`Renderizando mês: ${month}`);
-            const container = document.getElementById('calendar-container');
-            if (!container) {
-                console.error('Container #calendar-container não encontrado!');
-                return;
-            }
-            container.innerHTML = '';
-            const events = getEvents();
+            const calendarGrid = document.getElementById('calendar-grid');
+            const currentMonthElement = document.getElementById('current-month');
+            const monthNames = [
+                'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+                'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
+            ];
+
+            // Atualiza o título do mês
+            currentMonthElement.textContent = `${monthNames[month]} ${currentYear}`;
+
+            // Limpa o calendário
+            calendarGrid.innerHTML = '';
+
+            // Calcula o primeiro dia do mês e quantos dias tem o mês
+            const firstDay = new Date(currentYear, month, 1).getDay();
+            const daysInMonth = new Date(currentYear, month + 1, 0).getDate();
             const today = new Date();
-            const monthDate = new Date(2026, month, 1); // Fixado em 2026
-            const daysInMonth = new Date(2026, month + 1, 0).getDate();
 
-            const monthDiv = document.createElement('div');
-            monthDiv.classList.add('month');
-
-            const monthTitle = document.createElement('h2');
-            monthTitle.textContent = monthDate.toLocaleString('pt-BR', { month: 'long', year: 'numeric' });
-            monthDiv.appendChild(monthTitle);
-
-            const table = document.createElement('table');
-            table.classList.add('table');
-            const thead = document.createElement('thead');
-            const headerRow = document.createElement('tr');
-            ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'].forEach(day => {
-                const th = document.createElement('th');
-                th.textContent = day;
-                headerRow.appendChild(th);
-            });
-            thead.appendChild(headerRow);
-            table.appendChild(thead);
-
-            const tbody = document.createElement('tbody');
-            const firstDay = new Date(2026, month, 1).getDay();
-
-            let row = document.createElement('tr');
-            for (let j = 0; j < firstDay; j++) {
-                const emptyTd = document.createElement('td');
-                row.appendChild(emptyTd);
+            // Adiciona dias vazios no início
+            for (let i = 0; i < firstDay; i++) {
+                const emptyDay = document.createElement('div');
+                emptyDay.classList.add('calendar-day', 'empty');
+                calendarGrid.appendChild(emptyDay);
             }
 
+            // Adiciona os dias do mês
             for (let day = 1; day <= daysInMonth; day++) {
-                if (row.children.length === 7) {
-                    tbody.appendChild(row);
-                    row = document.createElement('tr');
-                }
-                const td = document.createElement('td');
-                td.classList.add('day');
-                td.innerHTML = day;
-
-                if (today.getFullYear() === 2026 && today.getMonth() === month && today.getDate() === day) {
-                    td.classList.add('today');
+                const dayElement = document.createElement('div');
+                dayElement.classList.add('calendar-day');
+                
+                // Verifica se é hoje
+                if (today.getFullYear() === currentYear && 
+                    today.getMonth() === month && 
+                    today.getDate() === day) {
+                    dayElement.classList.add('today');
                 }
 
-                const dateKey = `${2026}-${month + 1}-${day}`;
+                // Número do dia
+                const dayNumber = document.createElement('div');
+                dayNumber.classList.add('day-number');
+                dayNumber.textContent = day;
+                dayElement.appendChild(dayNumber);
+
+                // Container de eventos
+                const eventsContainer = document.createElement('div');
+                eventsContainer.classList.add('events');
+                dayElement.appendChild(eventsContainer);
+
+                // Adiciona eventos existentes
+                const dateKey = `${currentYear}-${month + 1}-${day}`;
+                const events = getEvents();
                 if (events[dateKey]) {
-                    events[dateKey].forEach(desc => {
-                        const eventDiv = document.createElement('div');
-                        eventDiv.classList.add('event');
-                        eventDiv.textContent = desc;
-                        const deleteButton = document.createElement('button');
-                        deleteButton.textContent = 'X';
-                        deleteButton.classList.add('delete-event');
-                        deleteButton.addEventListener('click', (e) => {
+                    events[dateKey].forEach(eventDesc => {
+                        const eventElement = document.createElement('div');
+                        eventElement.classList.add('event');
+                        
+                        const eventText = document.createElement('span');
+                        eventText.classList.add('event-text');
+                        eventText.textContent = eventDesc.length > 20 ? 
+                            eventDesc.substring(0, 20) + '...' : eventDesc;
+                        
+                        // TOOLTIP BRABO - Mostra nome completo
+                        const tooltip = document.createElement('div');
+                        tooltip.classList.add('event-tooltip');
+                        tooltip.textContent = eventDesc;
+                        
+                        const deleteBtn = document.createElement('button');
+                        deleteBtn.classList.add('delete-event');
+                        deleteBtn.textContent = 'X';
+                        deleteBtn.onclick = (e) => {
                             e.stopPropagation();
-                            if (confirm('Tem certeza que quer apagar este evento?')) {
-                                CalendarAPI.deleteEvent(2026, month, day, desc);
+                            if (confirm('Apagar este evento?')) {
+                                CalendarAPI.deleteEvent(currentYear, month, day, eventDesc);
                             }
-                        });
-                        eventDiv.appendChild(deleteButton);
-                        td.appendChild(eventDiv);
+                        };
+                        
+                        eventElement.appendChild(eventText);
+                        eventElement.appendChild(tooltip); // ADICIONA O TOOLTIP
+                        eventElement.appendChild(deleteBtn);
+                        eventsContainer.appendChild(eventElement);
                     });
                 }
 
-                td.addEventListener('click', () => {
-                    const desc = prompt('Digite o evento pro dia ' + day + ':');
-                    if (desc) CalendarAPI.addEvent(2026, month, day, desc);
-                });
+                // Click para adicionar evento
+                dayElement.onclick = () => {
+                    const eventDesc = prompt(`Adicionar evento para ${day}/${month + 1}/${currentYear}:`);
+                    if (eventDesc && eventDesc.trim()) {
+                        CalendarAPI.addEvent(currentYear, month, day, eventDesc.trim());
+                    }
+                };
 
-                row.appendChild(td);
+                calendarGrid.appendChild(dayElement);
             }
-            if (row.children.length > 0) tbody.appendChild(row);
-            table.appendChild(tbody);
-            monthDiv.appendChild(table);
-            container.appendChild(monthDiv);
-
-            const selector = document.getElementById('month-selector');
-            if (selector) selector.value = month;
-            else console.error('Seletor #month-selector não encontrado!');
         }
 
-        document.addEventListener('DOMContentLoaded', () => {
-            document.getElementById('prev-month').addEventListener('click', () => {
-                currentMonth = (currentMonth - 1 + 12) % 12;
-                renderCalendar(currentMonth);
-            });
-
-            document.getElementById('next-month').addEventListener('click', () => {
-                currentMonth = (currentMonth + 1) % 12;
-                renderCalendar(currentMonth);
-            });
-
-            document.getElementById('month-selector').addEventListener('change', (e) => {
-                currentMonth = parseInt(e.target.value);
-                renderCalendar(currentMonth);
-            });
-
+        // Event listeners
+        document.getElementById('prev-month').addEventListener('click', () => {
+            currentMonth = (currentMonth - 1 + 12) % 12;
             renderCalendar(currentMonth);
-            console.log('Barra de rolagem e navegação até dezembro de 2026 ativadas!');
         });
+
+        document.getElementById('next-month').addEventListener('click', () => {
+            currentMonth = (currentMonth + 1) % 12;
+            renderCalendar(currentMonth);
+        });
+
+        document.getElementById('month-selector').addEventListener('change', (e) => {
+            currentMonth = parseInt(e.target.value);
+            renderCalendar(currentMonth);
+        });
+
+        // Inicializa o calendário
+        renderCalendar(currentMonth);
     </script>
 </body>
 </html>

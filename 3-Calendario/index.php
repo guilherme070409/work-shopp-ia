@@ -231,6 +231,19 @@ header('Content-Type: text/html; charset=UTF-8');
             background: #cc0000;
         }
 
+        /* Novo: Estilo para feriados */
+        .holiday-badge {
+            background: #28a745;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            margin-top: 5px;
+            text-align: center;
+            word-wrap: break-word;
+            max-width: 100%;
+        }
+
         @media (max-width: 768px) {
             .container {
                 padding: 10px;
@@ -258,6 +271,11 @@ header('Content-Type: text/html; charset=UTF-8');
                 font-size: 0.7rem;
                 padding: 6px 10px;
             }
+            
+            .holiday-badge {
+                font-size: 0.7rem;
+                padding: 3px 6px;
+            }
         }
 
         @media (max-width: 480px) {
@@ -271,6 +289,11 @@ header('Content-Type: text/html; charset=UTF-8');
             
             .week-day, .calendar-day {
                 padding: 8px 4px;
+            }
+            
+            .holiday-badge {
+                font-size: 0.65rem;
+                padding: 2px 5px;
             }
         }
     </style>
@@ -322,6 +345,38 @@ header('Content-Type: text/html; charset=UTF-8');
     <script>
         let currentMonth = new Date().getMonth();
         const currentYear = 2026;
+        let holidays = {}; // Armazena os feriados: { 'YYYY-MM-DD': 'Nome do Feriado' }
+
+        // Nova função: Carrega feriados da API
+        async function loadHolidays() {
+            try {
+                console.log('Carregando feriados de 2026...');
+                const response = await fetch(`https://brasilapi.com.br/api/feriados/v1/${currentYear}`);
+                if (!response.ok) throw new Error('Erro na API');
+                const data = await response.json();
+                data.forEach(holiday => {
+                    const dateKey = holiday.date;
+                    holidays[dateKey] = holiday.name;
+                });
+                console.log(`Feriados carregados: ${Object.keys(holidays).length}`);
+                renderCalendar(currentMonth);
+            } catch (error) {
+                console.error('Erro ao carregar feriados:', error);
+                // Fallback com feriados manuais
+                holidays = {
+                    '2026-01-01': 'Confraternização Universal',
+                    '2026-04-21': 'Tiradentes',
+                    '2026-05-01': 'Dia do Trabalho',
+                    '2026-06-19': 'Corpus Christi',
+                    '2026-09-07': 'Independência do Brasil',
+                    '2026-10-12': 'Nossa Senhora Aparecida',
+                    '2026-11-02': 'Finados',
+                    '2026-11-15': 'Proclamação da República',
+                    '2026-12-25': 'Natal'
+                };
+                renderCalendar(currentMonth);
+            }
+        }
 
         const CalendarAPI = {
             addEvent: function(year, month, day, description) {
@@ -404,8 +459,16 @@ header('Content-Type: text/html; charset=UTF-8');
                 eventsContainer.classList.add('events');
                 dayElement.appendChild(eventsContainer);
 
+                // Adiciona feriados
+                const dateKey = `${currentYear}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                if (holidays[dateKey]) {
+                    const holidayBadge = document.createElement('div');
+                    holidayBadge.classList.add('holiday-badge');
+                    holidayBadge.textContent = holidays[dateKey];
+                    eventsContainer.appendChild(holidayBadge);
+                }
+
                 // Adiciona eventos existentes
-                const dateKey = `${currentYear}-${month + 1}-${day}`;
                 const events = getEvents();
                 if (events[dateKey]) {
                     events[dateKey].forEach(eventDesc => {
@@ -417,7 +480,6 @@ header('Content-Type: text/html; charset=UTF-8');
                         eventText.textContent = eventDesc.length > 20 ? 
                             eventDesc.substring(0, 20) + '...' : eventDesc;
                         
-                        // TOOLTIP BRABO - Mostra nome completo
                         const tooltip = document.createElement('div');
                         tooltip.classList.add('event-tooltip');
                         tooltip.textContent = eventDesc;
@@ -433,7 +495,7 @@ header('Content-Type: text/html; charset=UTF-8');
                         };
                         
                         eventElement.appendChild(eventText);
-                        eventElement.appendChild(tooltip); // ADICIONA O TOOLTIP
+                        eventElement.appendChild(tooltip);
                         eventElement.appendChild(deleteBtn);
                         eventsContainer.appendChild(eventElement);
                     });
@@ -452,23 +514,26 @@ header('Content-Type: text/html; charset=UTF-8');
         }
 
         // Event listeners
-        document.getElementById('prev-month').addEventListener('click', () => {
-            currentMonth = (currentMonth - 1 + 12) % 12;
-            renderCalendar(currentMonth);
+        document.addEventListener('DOMContentLoaded', () => {
+            loadHolidays(); // Carrega feriados ao iniciar
+
+            document.getElementById('prev-month').addEventListener('click', () => {
+                currentMonth = (currentMonth - 1 + 12) % 12;
+                renderCalendar(currentMonth);
+            });
+
+            document.getElementById('next-month').addEventListener('click', () => {
+                currentMonth = (currentMonth + 1) % 12;
+                renderCalendar(currentMonth);
+            });
+
+            document.getElementById('month-selector').addEventListener('change', (e) => {
+                currentMonth = parseInt(e.target.value);
+                renderCalendar(currentMonth);
+            });
         });
 
-        document.getElementById('next-month').addEventListener('click', () => {
-            currentMonth = (currentMonth + 1) % 12;
-            renderCalendar(currentMonth);
-        });
-
-        document.getElementById('month-selector').addEventListener('change', (e) => {
-            currentMonth = parseInt(e.target.value);
-            renderCalendar(currentMonth);
-        });
-
-        // Inicializa o calendário
-        renderCalendar(currentMonth);
+        // Inicializa o calendário após carregar feriados (já chamado em loadHolidays)
     </script>
 </body>
 </html>

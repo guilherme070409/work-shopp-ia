@@ -86,15 +86,6 @@
             </div>
         </section>
 
-        <!-- Produtos em Destaque -->
-        <section id="ofertas" style="margin: 4rem 0;">
-            <h2 style="text-align: center; margin-bottom: 1rem; font-size: 2rem; color: #1F2937;">
-                🏆 Destaques da Semana
-            </h2>
-            <p style="text-align: center; color: #666; margin-bottom: 3rem; max-width: 600px; margin-left: auto; margin-right: auto;">
-                Jogos selecionados com as melhores avaliações e preços especiais
-            </p>
-        </section>
 
         <!-- Todos os Produtos -->
         <section id="produtos">
@@ -209,5 +200,6 @@
     <div class="overlay" id="overlay"></div>
 
     <script src="js/script.js"></script>
+     <script src="js/api.js"></script>
 </body>
 </html>

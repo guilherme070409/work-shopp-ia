@@ -100,13 +100,19 @@ function buscarProdutos(termo) {
     `;
 }
 
-// Carrinho
+// Carrinho - CORRIGIDO
 function adicionarAoCarrinho(id) {
     const produto = produtos.find(p => p.id === id);
     const item = carrinho.find(item => item.id === id);
     
-    if (item) item.quantidade++;
-    else carrinho.push({...produto, quantidade: 1});
+    if (item) {
+        item.quantidade++;
+    } else {
+        carrinho.push({
+            ...produto,
+            quantidade: 1
+        });
+    }
     
     updateCart();
     showNotification(`${produto.nome} adicionado!`);
@@ -121,7 +127,11 @@ function alterarQuantidade(id, change) {
     const item = carrinho.find(item => item.id === id);
     if (item) {
         item.quantidade += change;
-        item.quantidade <= 0 ? removerDoCarrinho(id) : updateCart();
+        if (item.quantidade <= 0) {
+            removerDoCarrinho(id);
+        } else {
+            updateCart();
+        }
     }
 }
 
@@ -131,36 +141,55 @@ function updateCart() {
     // Contador
     elements.cartCount.textContent = carrinho.reduce((total, item) => total + item.quantidade, 0);
     
-    // Itens do carrinho
-    elements.cartItems.innerHTML = carrinho.length ? carrinho.map(item => `
-        <div class="cart-item">
-            <img src="${item.imagem}" alt="${item.nome}">
-            <div class="cart-details">
-                <div>${item.nome}</div>
-                <div>R$ ${item.preco.toFixed(2)}</div>
+    // Itens do carrinho - CORRIGIDO
+    if (carrinho.length === 0) {
+        elements.cartItems.innerHTML = `
+            <div class="empty-cart">
+                <div>🛒</div>
+                <h3>Carrinho vazio</h3>
+                <p>Adicione alguns jogos incríveis!</p>
             </div>
-            <div class="cart-quantity">
-                <button onclick="alterarQuantidade(${item.id}, -1)">-</button>
-                <span>${item.quantidade}</span>
-                <button onclick="alterarQuantidade(${item.id}, 1)">+</button>
+        `;
+    } else {
+        elements.cartItems.innerHTML = carrinho.map(item => `
+            <div class="cart-item">
+                <div class="cart-item-image">
+                    <img src="${item.imagem}" alt="${item.nome}" 
+                         onerror="this.style.display='none'; this.parentElement.innerHTML='🎲'; this.parentElement.style.fontSize='1.5rem'; this.parentElement.style.display='flex'; this.parentElement.style.alignItems='center'; this.parentElement.style.justifyContent='center';">
+                </div>
+                <div class="cart-item-details">
+                    <div class="cart-item-title">${item.nome}</div>
+                    <div class="cart-item-price">R$ ${item.preco.toFixed(2)}</div>
+                </div>
+                <div class="cart-item-quantity">
+                    <button class="quantity-btn" onclick="alterarQuantidade(${item.id}, -1)">-</button>
+                    <span class="quantity-number">${item.quantidade}</span>
+                    <button class="quantity-btn" onclick="alterarQuantidade(${item.id}, 1)">+</button>
+                </div>
+                <button class="quantity-btn remove-btn" onclick="removerDoCarrinho(${item.id})">🗑️</button>
             </div>
-            <button class="remove-btn" onclick="removerDoCarrinho(${item.id})">🗑️</button>
-        </div>
-    `).join('') : `
-        <div class="empty-cart">
-            <div>🛒</div>
-            <h3>Carrinho vazio</h3>
-        </div>
-    `;
+        `).join('');
+    }
     
-    // Total
+    // Total - CORRIGIDO
     const total = carrinho.reduce((sum, item) => sum + (item.preco * item.quantidade), 0);
-    const frete = total >= 150 ? 0 : 19.90;
+    const freteGratis = total >= 150;
+    const frete = freteGratis ? 0 : 19.90;
+    const totalFinal = total + frete;
     
     elements.cartTotal.innerHTML = `
-        <div>Subtotal: R$ ${total.toFixed(2)}</div>
-        <div>${frete ? `Frete: R$ ${frete.toFixed(2)}` : '🚚 Frete grátis!'}</div>
-        <div class="total-final">Total: R$ ${(total + frete).toFixed(2)}</div>
+        <div class="cart-subtotal">
+            <span>Subtotal:</span>
+            <strong>R$ ${total.toFixed(2)}</strong>
+        </div>
+        ${freteGratis ? 
+            '<div class="free-shipping">🚚 Frete grátis!</div>' : 
+            '<div class="shipping-cost">Frete: R$ 19,90</div>'
+        }
+        <div class="cart-total-final">
+            <span>Total:</span>
+            <strong class="total-price">R$ ${totalFinal.toFixed(2)}</strong>
+        </div>
     `;
 }
 
@@ -175,7 +204,7 @@ function finalizarCompra() {
     if (!carrinho.length) return showNotification('Carrinho vazio!', 'error');
     
     const total = carrinho.reduce((sum, item) => sum + (item.preco * item.quantidade), 0);
-    showNotification(`Compra finalizada! Total: R$ ${total.toFixed(2)}`, 'success');
+    showNotification(`🎉 Compra finalizada! Total: R$ ${total.toFixed(2)}`, 'success');
     
     setTimeout(() => {
         carrinho = [];
@@ -188,45 +217,388 @@ function showNotification(mensagem, tipo = 'success') {
     const notification = document.createElement('div');
     notification.className = 'notification';
     notification.style.cssText = `
-        position: fixed; top: 20px; right: 20px; 
+        position: fixed; 
+        top: 20px; 
+        right: 20px; 
         background: ${tipo === 'success' ? '#10B981' : '#EF4444'}; 
-        color: white; padding: 1rem; border-radius: 8px; 
-        z-index: 1001; animation: slideIn 0.3s ease;
+        color: white; 
+        padding: 1rem 1.5rem; 
+        border-radius: 8px; 
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        z-index: 1001; 
+        animation: slideIn 0.3s ease;
+        font-weight: 500;
     `;
     notification.textContent = mensagem;
     document.body.appendChild(notification);
     
-    setTimeout(() => notification.remove(), 3000);
+    setTimeout(() => {
+        notification.style.animation = 'slideOut 0.3s ease';
+        setTimeout(() => notification.remove(), 300);
+    }, 3000);
 }
 
-// API de CEP (opcional)
-async function calcularFrete(cep) {
-    try {
-        const response = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
-        const endereco = await response.json();
-        if (!endereco.erro) {
-            showNotification(`Frete calculado para ${endereco.localidade}-${endereco.uf}`);
-        }
-    } catch (error) {
-        showNotification('Erro ao calcular frete', 'error');
+// CSS para o carrinho - ADICIONAR
+const cartStyle = document.createElement('style');
+cartStyle.textContent = `
+    .cart-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1rem;
+        border-bottom: 1px solid #E5E7EB;
+    }
+    
+    .cart-item-image {
+        width: 60px;
+        height: 60px;
+        border-radius: 8px;
+        background: #f8f9fa;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        overflow: hidden;
+    }
+    
+    .cart-item-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    
+    .cart-item-details {
+        flex: 1;
+        min-width: 0;
+    }
+    
+    .cart-item-title {
+        font-weight: bold;
+        margin-bottom: 0.25rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    
+    .cart-item-price {
+        color: #059669;
+        font-weight: bold;
+    }
+    
+    .cart-item-quantity {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        flex-shrink: 0;
+    }
+    
+    .quantity-btn {
+        width: 30px;
+        height: 30px;
+        border: 1px solid #D1D5DB;
+        background: white;
+        border-radius: 6px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: background-color 0.2s;
+    }
+    
+    .quantity-btn:hover {
+        background: #F3F4F6;
+    }
+    
+    .remove-btn {
+        background: #EF4444;
+        border-color: #EF4444;
+        color: white;
+    }
+    
+    .remove-btn:hover {
+        background: #DC2626;
+    }
+    
+    .quantity-number {
+        min-width: 20px;
+        text-align: center;
+        font-weight: bold;
+    }
+    
+    .cart-subtotal, .cart-total-final {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.5rem;
+    }
+    
+    .free-shipping {
+        color: #10B981;
+        font-weight: bold;
+        margin-bottom: 0.5rem;
+    }
+    
+    .shipping-cost {
+        color: #6B7280;
+        font-size: 0.9rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .total-price {
+        color: #059669;
+        font-size: 1.2rem;
+    }
+    
+    .empty-cart {
+        text-align: center;
+        padding: 3rem;
+        color: #6B7280;
+    }
+    
+    .empty-cart div:first-child {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+    }
+    
+    @keyframes slideIn {
+        from { transform: translateX(100%); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+    }
+    
+    @keyframes slideOut {
+        from { transform: translateX(0); opacity: 1; }
+        to { transform: translateX(100%); opacity: 0; }
+    }
+`;
+document.head.appendChild(cartStyle);
+// ==================== DASHBOARD ====================
+
+// Sistema de Pedidos para Dashboard
+let pedidos = JSON.parse(localStorage.getItem('pedidos-mundo-jogos')) || [];
+
+// Funções do Dashboard
+function toggleAdminPanel() {
+    const dashboard = document.getElementById('dashboard');
+    const overlay = document.getElementById('dashboardOverlay');
+    
+    dashboard.classList.toggle('active');
+    overlay.classList.toggle('active');
+    document.body.style.overflow = dashboard.classList.contains('active') ? 'hidden' : '';
+    
+    // Atualizar dashboard quando abrir
+    if (dashboard.classList.contains('active')) {
+        atualizarDashboard();
     }
 }
 
-// CSS mínimo
-const style = document.createElement('style');
-style.textContent = `
-    .product-card { background: white; border-radius: 12px; padding: 1rem; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
-    .product-image { height: 200px; overflow: hidden; border-radius: 8px; }
-    .product-image img { width: 100%; height: 100%; object-fit: cover; }
-    .product-price { font-size: 1.25rem; font-weight: bold; color: #059669; margin: 0.5rem 0; }
-    .old-price { text-decoration: line-through; color: #999; font-size: 0.9rem; margin-left: 0.5rem; }
-    .product-info { display: flex; gap: 1rem; margin: 1rem 0; font-size: 0.8rem; color: #666; }
-    .cart-item { display: flex; align-items: center; gap: 1rem; padding: 1rem; border-bottom: 1px solid #eee; }
-    .cart-details { flex: 1; }
-    .cart-quantity { display: flex; align-items: center; gap: 0.5rem; }
-    .cart-quantity button { width: 30px; height: 30px; border: 1px solid #ddd; background: white; border-radius: 4px; }
-    .remove-btn { background: #ef4444; color: white; border: none; padding: 0.5rem; border-radius: 4px; }
-    .notification { animation: slideIn 0.3s ease; }
-    @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-`;
-document.head.appendChild(style);
+// Atualizar Dashboard
+function atualizarDashboard() {
+    atualizarEstatisticas();
+    atualizarTopProdutos();
+    atualizarVendasPorCategoria();
+    atualizarPedidosRecentes();
+}
+
+function atualizarEstatisticas() {
+    const totalVendas = pedidos.reduce((total, pedido) => total + pedido.total, 0);
+    const totalPedidos = pedidos.length;
+    const totalProdutos = produtos.length;
+
+    document.getElementById('totalVendas').textContent = `R$ ${totalVendas.toFixed(2)}`;
+    document.getElementById('totalPedidos').textContent = totalPedidos;
+    document.getElementById('totalProdutos').textContent = totalProdutos;
+    document.getElementById('produtosEstoque').textContent = totalProdutos;
+}
+
+function atualizarTopProdutos() {
+    const vendasAgrupadas = {};
+    
+    pedidos.forEach(pedido => {
+        pedido.itens.forEach(item => {
+            if (!vendasAgrupadas[item.id]) {
+                vendasAgrupadas[item.id] = {
+                    ...item,
+                    quantidadeTotal: 0
+                };
+            }
+            vendasAgrupadas[item.id].quantidadeTotal += item.quantidade;
+        });
+    });
+
+    const topProdutos = Object.values(vendasAgrupadas)
+        .sort((a, b) => b.quantidadeTotal - a.quantidadeTotal)
+        .slice(0, 5);
+
+    const topProductsContainer = document.getElementById('topProducts');
+    
+    if (topProdutos.length === 0) {
+        topProductsContainer.innerHTML = '<p style="color: #6B7280; text-align: center;">Nenhuma venda registrada ainda</p>';
+    } else {
+        topProductsContainer.innerHTML = topProdutos.map(produto => `
+            <div class="top-product-item">
+                <div class="top-product-image">
+                    <img src="${produto.imagem}" alt="${produto.nome}" 
+                         onerror="this.style.display='none'; this.parentElement.innerHTML='🎲'; this.parentElement.style.fontSize='1.2rem'; this.parentElement.style.display='flex'; this.parentElement.style.alignItems='center'; this.parentElement.style.justifyContent='center';">
+                </div>
+                <div class="top-product-info">
+                    <div class="top-product-name">${produto.nome}</div>
+                    <div class="top-product-sales">${produto.quantidadeTotal} vendas</div>
+                </div>
+            </div>
+        `).join('');
+    }
+}
+
+function atualizarVendasPorCategoria() {
+    const vendasCategoria = {};
+    
+    pedidos.forEach(pedido => {
+        pedido.itens.forEach(item => {
+            const categoria = produtos.find(p => p.id === item.id)?.categoria || 'outros';
+            if (!vendasCategoria[categoria]) {
+                vendasCategoria[categoria] = 0;
+            }
+            vendasCategoria[categoria] += item.preco * item.quantidade;
+        });
+    });
+
+    const totalVendas = Object.values(vendasCategoria).reduce((a, b) => a + b, 0);
+    const categorySalesContainer = document.getElementById('salesByCategory');
+    
+    if (totalVendas === 0) {
+        categorySalesContainer.innerHTML = '<p style="color: #6B7280; text-align: center;">Nenhuma venda por categoria</p>';
+    } else {
+        categorySalesContainer.innerHTML = Object.entries(vendasCategoria)
+            .sort(([,a], [,b]) => b - a)
+            .map(([categoria, valor]) => {
+                const percentual = totalVendas > 0 ? (valor / totalVendas) * 100 : 0;
+                return `
+                    <div class="category-item">
+                        <span class="category-name">${categoria}</span>
+                        <div class="category-bar">
+                            <div class="category-fill" style="width: ${percentual}%"></div>
+                        </div>
+                        <span class="category-value">R$ ${valor.toFixed(2)}</span>
+                    </div>
+                `;
+            }).join('');
+    }
+}
+
+function atualizarPedidosRecentes() {
+    const pedidosRecentes = pedidos.slice(-5).reverse();
+    const recentOrdersContainer = document.getElementById('recentOrders');
+    
+    if (pedidosRecentes.length === 0) {
+        recentOrdersContainer.innerHTML = '<p style="color: #6B7280; text-align: center;">Nenhum pedido recente</p>';
+    } else {
+        recentOrdersContainer.innerHTML = pedidosRecentes.map(pedido => `
+            <div class="order-item">
+                <div class="order-info">
+                    <h4>Pedido #${pedido.numero}</h4>
+                    <p>${pedido.data} • ${pedido.itens.length} itens</p>
+                </div>
+                <div class="order-total">R$ ${pedido.total.toFixed(2)}</div>
+            </div>
+        `).join('');
+    }
+}
+
+// Funções de Controle Admin
+function exportarDados() {
+    const dados = {
+        pedidos: pedidos,
+        produtos: produtos,
+        dataExportacao: new Date().toISOString()
+    };
+    
+    const blob = new Blob([JSON.stringify(dados, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `dados-mundo-jogos-${new Date().toISOString().split('T')[0]}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    
+    showNotification('📤 Dados exportados com sucesso!', 'success');
+}
+
+function limparDados() {
+    if (confirm('Tem certeza que deseja limpar todos os dados? Esta ação não pode ser desfeita.')) {
+        pedidos = [];
+        localStorage.removeItem('pedidos-mundo-jogos');
+        atualizarDashboard();
+        showNotification('🗑️ Dados limpos com sucesso!', 'success');
+    }
+}
+
+function gerarRelatorio() {
+    const totalVendas = pedidos.reduce((total, pedido) => total + pedido.total, 0);
+    const totalPedidos = pedidos.length;
+    
+    const relatorio = `
+RELATÓRIO MUNDO DOS JOGOS
+========================
+Data: ${new Date().toLocaleDateString('pt-BR')}
+
+📊 ESTATÍSTICAS GERAIS:
+• Total em Vendas: R$ ${totalVendas.toFixed(2)}
+• Pedidos Realizados: ${totalPedidos}
+• Produtos no Catálogo: ${produtos.length}
+
+📈 PRÓXIMOS PASSOS:
+• Analisar categorias com melhor desempenho
+• Reabastecer estoque dos produtos mais vendidos
+• Promover produtos com menor movimento
+    `;
+    
+    const blob = new Blob([relatorio], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `relatorio-mundo-jogos-${new Date().toISOString().split('T')[0]}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    
+    showNotification('📊 Relatório gerado com sucesso!', 'success');
+}
+
+// MODIFICAR a função finalizarCompra existente para registrar pedidos
+function finalizarCompra() {
+    if (!carrinho.length) return showNotification('Carrinho vazio!', 'error');
+    
+    const total = carrinho.reduce((sum, item) => sum + (item.preco * item.quantidade), 0);
+    const frete = total >= 150 ? 0 : 19.90;
+    const totalFinal = total + frete;
+    
+    // Criar pedido para o dashboard
+    const pedido = {
+        numero: 'PED' + Date.now(),
+        data: new Date().toLocaleDateString('pt-BR'),
+        itens: [...carrinho],
+        subtotal: total,
+        frete: frete,
+        total: totalFinal,
+        status: 'concluído'
+    };
+    
+    // Adicionar aos pedidos do dashboard
+    pedidos.push(pedido);
+    localStorage.setItem('pedidos-mundo-jogos', JSON.stringify(pedidos));
+    
+    showNotification(`🎉 Compra finalizada! Pedido #${pedido.numero}`, 'success');
+    
+    // Limpar carrinho
+    setTimeout(() => {
+        carrinho = [];
+        updateCart();
+        toggleCart();
+    }, 2000);
+}
+
+// Event listener para o overlay do dashboard
+document.getElementById('dashboardOverlay').addEventListener('click', toggleAdminPanel);

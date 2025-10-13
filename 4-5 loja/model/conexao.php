@@ -1,16 +1,15 @@
 <?php
-// config/database.php
-
 class Database {
     private $host = "localhost";
-    private $db_name = "loja_jogos"; // seu banco de dados
-    private $username = "root"; // seu usuário
+    private $db_name = "loja_jogos"; // Certifique-se que está assim
+    private $username = "root";
+    private $password = "";
     public $conn;
 
     public function getConnection() {
         $this->conn = null;
         try {
-            $this->conn = new PDO("mysql:host=" . $this->host . ";dbname=" . $this->db_name, $this->username);
+            $this->conn = new PDO("mysql:host=" . $this->host . ";dbname=" . $this->db_name, $this->username, $this->password);
             $this->conn->exec("set names utf8");
             $this->conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         } catch(PDOException $exception) {

@@ -1,6 +1,6 @@
 <?php
 session_start();
-require_once 'model/dashboard.php';
+require_once '../model/dashmodel.php';
 
 try {
     $dashboardModel = new DashboardModel();
@@ -30,7 +30,6 @@ try {
 </head>
 <body>
     <div class="dashboard-container">
-        <!-- Sidebar -->
         <div class="sidebar">
             <div class="logo">
                 <h2>🎲 Admin Panel</h2>
@@ -38,31 +37,25 @@ try {
             </div>
             <nav class="sidebar-nav">
                 <ul>
-                    <li class="active"><a href="admin.php">📊 Dashboard</a></li>
+                    <li class="active"><a href="dashboard.php">📊 Dashboard</a></li>
                     <li><a href="produtos.php">🎯 Produtos</a></li>
-                    <li><a href="categorias.php">📁 Categorias</a></li>
-                    <li><a href="index.php" target="_blank">🏠 Ver Loja</a></li>
+                    <li><a href="../lojinha/index.php" target="_blank">🏠 Ver Loja</a></li>
                     <li><a href="#" id="logout">🚪 Sair</a></li>
                 </ul>
             </nav>
         </div>
 
-        <!-- Main Content -->
         <div class="main-content">
             <header class="dashboard-header">
                 <div class="header-left">
                     <h1>Dashboard</h1>
                     <p>Bem-vindo de volta, Admin!</p>
-                    <small style="color: #28a745;">📊 Dados em tempo real do banco</small>
                 </div>
             </header>
 
-            <!-- Stats Cards -->
             <div class="stats-grid">
                 <div class="stat-card">
-                    <div class="stat-icon" style="background: #4CAF50;">
-                        📦
-                    </div>
+                    <div class="stat-icon" style="background: #4CAF50;">📦</div>
                     <div class="stat-info">
                         <h3><?php echo $total_produtos; ?></h3>
                         <p>Total de Produtos</p>
@@ -70,9 +63,7 @@ try {
                 </div>
 
                 <div class="stat-card">
-                    <div class="stat-icon" style="background: #2196F3;">
-                        📁
-                    </div>
+                    <div class="stat-icon" style="background: #2196F3;">📁</div>
                     <div class="stat-info">
                         <h3><?php echo $total_categorias; ?></h3>
                         <p>Categorias</p>
@@ -80,7 +71,6 @@ try {
                 </div>
             </div>
 
-            <!-- Produtos Recentes -->
             <div class="content-card">
                 <div class="card-header">
                     <h3>Produtos Recentes</h3>
@@ -93,7 +83,7 @@ try {
                                 <th>Nome</th>
                                 <th>Preço</th>
                                 <th>Categoria</th>
-                                <th>Idade</th>
+                                <th>Jogadores</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -101,17 +91,10 @@ try {
                                 <?php foreach ($produtos_recentes as $produto): ?>
                                 <tr>
                                     <td>#<?php echo $produto['ID']; ?></td>
-                                    <td>
-                                        <div class="product-cell">
-                                            <?php if(!empty($produto['IMG'])): ?>
-                                            <img src="img/<?php echo $produto['IMG']; ?>" alt="<?php echo $produto['NOME']; ?>">
-                                            <?php endif; ?>
-                                            <span><?php echo $produto['NOME']; ?></span>
-                                        </div>
-                                    </td>
+                                    <td><?php echo $produto['NOME']; ?></td>
                                     <td>R$ <?php echo $produto['PRECO']; ?></td>
                                     <td><?php echo $produto['NOME_CATEGORIA'] ?? 'Sem categoria'; ?></td>
-                                    <td><?php echo $produto['IDADE']; ?></td>
+                                    <td><?php echo $produto['PESOA']; ?></td>
                                 </tr>
                                 <?php endforeach; ?>
                             <?php else: ?>
@@ -124,7 +107,6 @@ try {
                 </div>
             </div>
 
-            <!-- Produtos por Categoria -->
             <div class="content-card">
                 <div class="card-header">
                     <h3>Produtos por Categoria</h3>

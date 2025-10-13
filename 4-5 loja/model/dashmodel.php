@@ -5,10 +5,12 @@ class DashboardModel {
     private $conn;
 
     public function __construct() {
-        // Sua conexão - adapte conforme seu arquivo conexao.php
-        // Se sua classe de conexão se chama diferente, ajuste aqui
-        $database = new Database(); // ou o nome da sua classe de conexão
+        $database = new Database();
         $this->conn = $database->getConnection();
+        
+        if ($this->conn === null) {
+            throw new Exception("Falha na conexão com o banco de dados");
+        }
     }
 
     public function getTotalProdutos() {
@@ -46,32 +48,54 @@ class DashboardModel {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-public function getCategorias() {
-    $query = "SELECT * FROM categoria ORDER BY NOME_CATEGORIA";
-    $stmt = $this->conn->prepare($query);
-    $stmt->execute();
-    return $stmt->fetchAll(PDO::FETCH_ASSOC);
-}
-public function cadastrarProduto($dados) {
+    public function getCategorias() {
+        $query = "SELECT * FROM categoria ORDER BY NOME_CATEGORIA";
+        $stmt = $this->conn->prepare($query);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function cadastrarProduto($dados) {
     $query = "INSERT INTO produto (NOME, PRECO, DESCRICAO, PESOA, IDADE, TEMPO, IMG, FK_CATEGORIA) 
-              VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+              VALUES (:nome, :preco, :descricao, :pesoa, :idade, :tempo, :img, :categoria)";
+    
     $stmt = $this->conn->prepare($query);
     return $stmt->execute([
-        $dados['nome'],
-        $dados['preco'], 
-        $dados['descricao'],
-        $dados['pesoa'],  // Agora é PESOA (quantidade de jogadores)
-        $dados['idade'],
-        $dados['tempo'],
-        $dados['imagem'],
-        $dados['categoria']
+        ':nome' => $dados['nome'],
+        ':preco' => $dados['preco'],
+        ':descricao' => $dados['descricao'],
+        ':pesoa' => $dados['pesoa'],
+        ':idade' => $dados['idade'],
+        ':tempo' => $dados['tempo'],
+        ':img' => $dados['imagem'], // Agora usando :img
+        ':categoria' => $dados['categoria']
     ]);
 }
-public function getTodosProdutos() {
-    $query = "SELECT p.*, c.NOME_CATEGORIA 
+    public function getTodosProdutos() {
+        $query = "SELECT p.*, c.NOME_CATEGORIA 
+                  FROM produto p 
+                  LEFT JOIN categoria c ON p.FK_CATEGORIA = c.ID 
+                  ORDER BY p.ID DESC";
+        $stmt = $this->conn->prepare($query);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+public function getProdutosParaLoja() {
+    $query = "SELECT 
+                p.ID as id,
+                p.NOME as nome,
+                p.PRECO as preco,
+                p.DESCRICAO as descricao,
+                p.IMG as imagem,  // Certifique-se que está como 'imagem' aqui
+                p.PESOA as pesoa,
+                p.IDADE as idade,
+                p.TEMPO as tempo,
+                c.NOME_CATEGORIA as categoria
               FROM produto p 
               LEFT JOIN categoria c ON p.FK_CATEGORIA = c.ID 
               ORDER BY p.ID DESC";
+    
     $stmt = $this->conn->prepare($query);
     $stmt->execute();
     return $stmt->fetchAll(PDO::FETCH_ASSOC);

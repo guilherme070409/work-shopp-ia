@@ -1,11 +1,9 @@
 <?php
 session_start();
-require_once 'model/dashboard.php';
+require_once '../model/dashmodel.php';
 
 try {
     $dashboardModel = new DashboardModel();
-    
-    // Buscar todos os produtos do banco
     $produtos = $dashboardModel->getTodosProdutos();
     $categorias = $dashboardModel->getCategorias();
     
@@ -25,12 +23,9 @@ try {
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-    <!-- Header -->
     <header class="header">
         <nav class="navbar">
-            <div class="logo">
-                🎲 Mundo dos Jogos
-            </div>
+            <div class="logo">🎲 Mundo dos Jogos</div>
             <ul class="nav-links">
                 <li><a href="#home">Início</a></li>
                 <li><a href="#produtos">Produtos</a></li>
@@ -38,8 +33,7 @@ try {
                 <li><a href="#contato">Contato</a></li>
                 <li>
                     <div class="search-box">
-                        <input type="text" id="searchInput" placeholder="Buscar jogos..." 
-                               style="padding: 0.5rem; border-radius: 20px; border: 1px solid #ccc; width: 200px;">
+                        <input type="text" id="searchInput" placeholder="Buscar jogos...">
                     </div>
                 </li>
                 <li class="cart-icon" id="cartToggle">
@@ -49,21 +43,18 @@ try {
         </nav>
     </header>
 
-    <!-- Main Content -->
     <main class="container">
-        <!-- Hero Section -->
         <section class="hero" id="home">
             <div class="hero-content">
                 <h1>🎲 Mundo dos Jogos</h1>
-                <p>Descubra jogos incríveis para todas as idades e ocasiões. De clássicos atemporais aos lançamentos mais modernos!</p>
+                <p>Descubra jogos incríveis para todas as idades e ocasiões!</p>
                 <div style="display: flex; gap: 1rem; justify-content: center; margin-top: 2rem; flex-wrap: wrap;">
                     <a href="#produtos" class="btn btn-gold">Explorar Jogos</a>
-                    <a href="#ofertas" class="btn">Ofertas da Semana</a>
+                    <a href="../dashboard/produtos.php" class="btn">Área do Admin</a>
                 </div>
             </div>
         </section>
 
-        <!-- Estatísticas -->
         <section style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 2rem; margin: 3rem 0;">
             <div style="text-align: center; padding: 2rem; background: white; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1);">
                 <div style="font-size: 2.5rem; color: #8B5CF6;">🎯</div>
@@ -87,11 +78,8 @@ try {
             </div>
         </section>
 
-        <!-- Categorias -->
         <section id="categorias">
-            <h2 style="text-align: center; margin-bottom: 2rem; font-size: 2.5rem; color: #1F2937;">
-                Nossas Categorias
-            </h2>
+            <h2 style="text-align: center; margin-bottom: 2rem; font-size: 2.5rem; color: #1F2937;">Nossas Categorias</h2>
             <div class="categories">
                 <button class="category-btn active" data-category="todos">Todos os Jogos</button>
                 <?php foreach ($categorias as $categoria): ?>
@@ -102,16 +90,11 @@ try {
             </div>
         </section>
 
-        <!-- Todos os Produtos -->
         <section id="produtos">
-            <h2 style="text-align: center; margin-bottom: 3rem; font-size: 2.5rem; color: #1F2937;">
-                Nossa Coleção Completa
-            </h2>
+            <h2 style="text-align: center; margin-bottom: 3rem; font-size: 2.5rem; color: #1F2937;">Nossa Coleção Completa</h2>
             
             <?php if (isset($erro)): ?>
-                <div style="text-align: center; color: red; padding: 2rem;">
-                    <?php echo $erro; ?>
-                </div>
+                <div style="text-align: center; color: red; padding: 2rem;"><?php echo $erro; ?></div>
             <?php endif; ?>
             
             <div class="products-grid" id="productsGrid">
@@ -124,11 +107,6 @@ try {
                             <?php else: ?>
                                 <div class="no-product-image">🎲</div>
                             <?php endif; ?>
-                            <div class="product-overlay">
-                                <button class="btn-quick-view" data-product-id="<?php echo $produto['ID']; ?>">
-                                    Ver Detalhes
-                                </button>
-                            </div>
                         </div>
                         <div class="product-info">
                             <h3 class="product-title"><?php echo $produto['NOME']; ?></h3>
@@ -146,9 +124,7 @@ try {
                             </p>
                             <div class="product-footer">
                                 <span class="product-price">R$ <?php echo $produto['PRECO']; ?></span>
-                                <button class="btn-add-cart" data-product-id="<?php echo $produto['ID']; ?>">
-                                    🛒 Adicionar
-                                </button>
+                                <button class="btn-add-cart" data-product-id="<?php echo $produto['ID']; ?>">🛒 Adicionar</button>
                             </div>
                         </div>
                     </div>
@@ -157,63 +133,26 @@ try {
                     <div style="grid-column: 1 / -1; text-align: center; padding: 3rem;">
                         <h3 style="color: #666; margin-bottom: 1rem;">Nenhum jogo cadastrado ainda</h3>
                         <p style="color: #999;">Visite o painel administrativo para cadastrar produtos</p>
-                        <a href="admin.php" class="btn" style="margin-top: 1rem;">📊 Ir para o Dashboard</a>
+                        <a href="../dashboard/produtos.php" class="btn" style="margin-top: 1rem;">📊 Ir para o Dashboard</a>
                     </div>
                 <?php endif; ?>
             </div>
         </section>
-
-        <!-- Resto do seu código permanece igual -->
-        <!-- Por que comprar conosco -->
-        <section style="background: white; padding: 4rem 2rem; border-radius: 15px; margin: 4rem 0; text-align: center;">
-            <h2 style="color: #1F2937; margin-bottom: 2rem; font-size: 2.2rem;">Por que escolher a Mundo dos Jogos?</h2>
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem; margin-top: 3rem;">
-                <div>
-                    <div style="font-size: 3rem; margin-bottom: 1rem;">🎯</div>
-                    <h3 style="color: #8B5CF6;">Jogos Selecionados</h3>
-                    <p>Curadoria especializada com os melhores jogos do mercado</p>
-                </div>
-                <div>
-                    <div style="font-size: 3rem; margin-bottom: 1rem;">🚀</div>
-                    <h3 style="color: #8B5CF6;">Entrega Rápida</h3>
-                    <p>Entregamos em todo o Brasil em até 5 dias úteis</p>
-                </div>
-                <div>
-                    <div style="font-size: 3rem; margin-bottom: 1rem;">🛡️</div>
-                    <h3 style="color: #8B5CF6;">Garantia Total</h3>
-                    <p>30 dias para troca e devolução</p>
-                </div>
-                <div>
-                    <div style="font-size: 3rem; margin-bottom: 1rem;">💎</div>
-                    <h3 style="color: #8B5CF6;">Qualidade Garantida</h3>
-                    <p>Produtos originais e de alta qualidade</p>
-                </div>
-            </div>
-        </section>
-
-        <!-- Newsletter -->
-        <section style="background: linear-gradient(135deg, #8B5CF6, #6366F1); color: white; padding: 3rem; border-radius: 15px; text-align: center;">
-            <h2 style="margin-bottom: 1rem; color: #F59E0B;">📧 Fique por Dentro</h2>
-            <p style="margin-bottom: 2rem; opacity: 0.9;">Receba ofertas exclusivas e novidades do mundo dos jogos</p>
-            <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; max-width: 500px; margin: 0 auto;">
-                <input type="email" placeholder="Seu melhor e-mail" 
-                       style="padding: 1rem; border: none; border-radius: 8px; flex: 1; min-width: 200px;">
-                <button class="btn" style="background: #F59E0B; color: #1F2937;">Assinar</button>
-            </div>
-        </section>
     </main>
 
-    <!-- Footer (mantém igual) -->
-    <footer style="background: #1F2937; color: white; padding: 3rem 0; margin-top: 4rem;">
-        <!-- ... seu footer atual ... -->
-    </footer>
-
-    <!-- Carrinho Sidebar (mantém igual) -->
     <div class="cart-sidebar" id="cartSidebar">
-        <!-- ... seu carrinho atual ... -->
+        <div class="cart-header">
+            <h3>🛒 Seu Carrinho</h3>
+            <button class="close-cart" id="closeCart">×</button>
+        </div>
+        <div class="cart-items" id="cartItems"></div>
+        <div class="cart-total" id="cartTotal">Total: R$ 0,00</div>
+        <div style="display: flex; gap: 1rem; padding: 1rem;">
+            <button class="btn" style="flex: 1;" onclick="toggleCart()">Continuar Comprando</button>
+            <button class="btn" style="flex: 1; background: #F59E0B; color: #1F2937;" onclick="finalizarCompra()">💳 Finalizar Compra</button>
+        </div>
     </div>
 
-    <!-- Overlay -->
     <div class="overlay" id="overlay"></div>
 
     <script src="js/script.js"></script>

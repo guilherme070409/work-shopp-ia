@@ -54,23 +54,22 @@ class DashboardModel {
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
-
-    public function cadastrarProduto($dados) {
+public function cadastrarProduto($dados) {
     $query = "INSERT INTO produto (NOME, PRECO, DESCRICAO, PESOA, IDADE, TEMPO, IMG, FK_CATEGORIA) 
               VALUES (:nome, :preco, :descricao, :pesoa, :idade, :tempo, :img, :categoria)";
     
     $stmt = $this->conn->prepare($query);
-    return $stmt->execute([
-        ':nome' => $dados['nome'],
-        ':preco' => $dados['preco'],
-        ':descricao' => $dados['descricao'],
-        ':pesoa' => $dados['pesoa'],
-        ':idade' => $dados['idade'],
-        ':tempo' => $dados['tempo'],
-        ':img' => $dados['imagem'], // Agora usando :img
-        ':categoria' => $dados['categoria']
-    ]);
+    $stmt->bindParam(':nome', $dados['nome']);
+    $stmt->bindParam(':preco', $dados['preco']);
+    $stmt->bindParam(':descricao', $dados['descricao']);
+    $stmt->bindParam(':pesoa', $dados['pesoa']);
+    $stmt->bindParam(':idade', $dados['idade']);
+    $stmt->bindParam(':tempo', $dados['tempo']);
+    $stmt->bindParam(':categoria', $dados['categoria']);
+    $stmt->bindParam(':img', $dados['imagem'], PDO::PARAM_LOB); // BLOB
+    return $stmt->execute();
 }
+
     public function getTodosProdutos() {
         $query = "SELECT p.*, c.NOME_CATEGORIA 
                   FROM produto p 
@@ -99,6 +98,43 @@ public function getProdutosParaLoja() {
     $stmt = $this->conn->prepare($query);
     $stmt->execute();
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+public function excluirProduto($id) {
+    $sql = "DELETE FROM produto WHERE ID = ?";
+    $stmt = $this->conn->prepare($sql);
+    return $stmt->execute([$id]);
+}
+public function getProdutoPorId($id) {
+    $sql = "SELECT * FROM produto WHERE ID = ?";
+    $stmt = $this->conn->prepare($sql);
+    $stmt->execute([$id]);
+    return $stmt->fetch(PDO::FETCH_ASSOC);
+}
+
+public function atualizarProduto($dados) {
+    $sql = "UPDATE produto SET 
+            NOME = ?, 
+            PRECO = ?, 
+            DESCRICAO = ?, 
+            PESOA = ?, 
+            IDADE = ?, 
+            TEMPO = ?, 
+            IMG = ?, 
+            FK_CATEGORIA = ? 
+            WHERE ID = ?";
+    
+    $stmt = $this->conn->prepare($sql);
+    return $stmt->execute([
+        $dados['nome'],
+        $dados['preco'],
+        $dados['descricao'],
+        $dados['pesoa'],
+        $dados['idade'],
+        $dados['tempo'],
+        $dados['imagem'],
+        $dados['categoria'],
+        $dados['id']
+    ]);
 }
 }
 ?>

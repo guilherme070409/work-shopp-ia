@@ -1,15 +1,23 @@
 <?php
+// Ativa exibição de erros para depuração
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
 session_start();
-require_once '../model/dashmodel.php';
+
+// Inicializa variáveis
+$erro = '';
+$produtos = [];
+$categorias = [];
+
+require_once __DIR__ . '/../model/dashmodel.php';
 
 try {
     $dashboardModel = new DashboardModel();
     $produtos = $dashboardModel->getTodosProdutos();
     $categorias = $dashboardModel->getCategorias();
-    
 } catch (Exception $e) {
-    $produtos = [];
-    $categorias = [];
     $erro = "Erro ao carregar produtos: " . $e->getMessage();
 }
 ?>
@@ -82,52 +90,57 @@ try {
             <h2 style="text-align: center; margin-bottom: 2rem; font-size: 2.5rem; color: #1F2937;">Nossas Categorias</h2>
             <div class="categories">
                 <button class="category-btn active" data-category="todos">Todos os Jogos</button>
-                <?php foreach ($categorias as $categoria): ?>
-                <button class="category-btn" data-category="<?php echo strtolower($categoria['NOME_CATEGORIA']); ?>">
-                    <?php echo $categoria['NOME_CATEGORIA']; ?>
-                </button>
-                <?php endforeach; ?>
+                <?php if (!empty($categorias)): ?>
+                    <?php foreach ($categorias as $categoria): ?>
+                        <button class="category-btn" data-category="<?php echo strtolower($categoria['NOME_CATEGORIA']); ?>">
+                            <?php echo $categoria['NOME_CATEGORIA']; ?>
+                        </button>
+                    <?php endforeach; ?>
+                <?php endif; ?>
             </div>
         </section>
 
         <section id="produtos">
             <h2 style="text-align: center; margin-bottom: 3rem; font-size: 2.5rem; color: #1F2937;">Nossa Coleção Completa</h2>
             
-            <?php if (isset($erro)): ?>
+            <?php if (!empty($erro)): ?>
                 <div style="text-align: center; color: red; padding: 2rem;"><?php echo $erro; ?></div>
             <?php endif; ?>
             
             <div class="products-grid" id="productsGrid">
                 <?php if (!empty($produtos)): ?>
                     <?php foreach ($produtos as $produto): ?>
-                    <div class="product-card" data-category="<?php echo strtolower($produto['NOME_CATEGORIA'] ?? 'outros'); ?>">
-                        <div class="product-image">
-                            <?php if (!empty($produto['IMG'])): ?>
-                                <img src="<?php echo $produto['IMG']; ?>" alt="<?php echo $produto['NOME']; ?>">
-                            <?php else: ?>
-                                <div class="no-product-image">🎲</div>
-                            <?php endif; ?>
-                        </div>
-                        <div class="product-info">
-                            <h3 class="product-title"><?php echo $produto['NOME']; ?></h3>
-                            <p class="product-category"><?php echo $produto['NOME_CATEGORIA'] ?? 'Sem categoria'; ?></p>
-                            <div class="product-details">
-                                <span class="product-players">👥 <?php echo $produto['PESOA'] ?? 'N/A'; ?></span>
-                                <span class="product-age">🎯 <?php echo $produto['IDADE'] ?? 'N/A'; ?></span>
-                                <span class="product-time">⏱️ <?php echo $produto['TEMPO'] ?? 'N/A'; ?></span>
+                        <div class="product-card" data-category="<?php echo strtolower($produto['NOME_CATEGORIA'] ?? 'outros'); ?>">
+                            <div class="product-image">
+                              <?php if (!empty($produto['IMG'])): 
+    $base64 = base64_encode($produto['IMG']);
+?>
+    <img src="data:image/jpeg;base64,<?php echo $base64; ?>" alt="<?php echo $produto['NOME']; ?>">
+<?php else: ?>
+    <div class="no-product-image">🎲</div>
+<?php endif; ?>
+
                             </div>
-                            <p class="product-description">
-                                <?php 
-                                $descricao = $produto['DESCRICAO'] ?? 'Descrição não disponível';
-                                echo strlen($descricao) > 100 ? substr($descricao, 0, 100) . '...' : $descricao;
-                                ?>
-                            </p>
-                            <div class="product-footer">
-                                <span class="product-price">R$ <?php echo $produto['PRECO']; ?></span>
-                                <button class="btn-add-cart" data-product-id="<?php echo $produto['ID']; ?>">🛒 Adicionar</button>
+                            <div class="product-info">
+                                <h3 class="product-title"><?php echo $produto['NOME'] ?? 'Sem nome'; ?></h3>
+                                <p class="product-category"><?php echo $produto['NOME_CATEGORIA'] ?? 'Sem categoria'; ?></p>
+                                <div class="product-details">
+                                    <span class="product-players">👥 <?php echo $produto['PESOA'] ?? 'N/A'; ?></span>
+                                    <span class="product-age">🎯 <?php echo $produto['IDADE'] ?? 'N/A'; ?></span>
+                                    <span class="product-time">⏱️ <?php echo $produto['TEMPO'] ?? 'N/A'; ?></span>
+                                </div>
+                                <p class="product-description">
+                                    <?php 
+                                    $descricao = $produto['DESCRICAO'] ?? 'Descrição não disponível';
+                                    echo strlen($descricao) > 100 ? substr($descricao, 0, 100) . '...' : $descricao;
+                                    ?>
+                                </p>
+                                <div class="product-footer">
+                                    <span class="product-price">R$ <?php echo $produto['PRECO'] ?? '0,00'; ?></span>
+                                    <button class="btn-add-cart" data-product-id="<?php echo $produto['ID'] ?? 0; ?>">🛒 Adicionar</button>
+                                </div>
                             </div>
                         </div>
-                    </div>
                     <?php endforeach; ?>
                 <?php else: ?>
                     <div style="grid-column: 1 / -1; text-align: center; padding: 3rem;">

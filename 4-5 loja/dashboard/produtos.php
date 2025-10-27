@@ -18,31 +18,7 @@ try {
         $tempo = $_POST['tempo'] ?? '';
         $categoria = $_POST['categoria'] ?? '';
 
-      // Upload da imagem
-$imagem = '';
-if (isset($_FILES['imagem']) && $_FILES['imagem']['error'] === 0) {
-    $pasta_upload = '../lojinha/img/';
-
-    // Cria pasta se não existir
-    if (!is_dir($pasta_upload)) {
-        mkdir($pasta_upload, 0777, true);
-    }
-
-    $nome_arquivo = uniqid() . '_' . basename($_FILES['imagem']['name']);
-    $caminho_completo = $pasta_upload . $nome_arquivo;
-
-    // Validar tipo de arquivo
-    $tipos_permitidos = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
-    if (in_array($_FILES['imagem']['type'], $tipos_permitidos)) {
-        if (move_uploaded_file($_FILES['imagem']['tmp_name'], $caminho_completo)) {
-            $imagem = 'img/' . $nome_arquivo;
-        } else {
-            $erro = "Erro ao fazer upload da imagem!";
-        }
-    } else {
-        $erro = "Tipo de imagem não permitido!";
-    }
-}
+      
 // Upload da imagem diretamente no banco
 $imagem = null;
 if (isset($_FILES['imagem']) && $_FILES['imagem']['error'] === 0) {
@@ -80,26 +56,26 @@ if (isset($_FILES['imagem']) && $_FILES['imagem']['error'] === 0) {
 
     // Mensagem de exclusão
     if (isset($_GET['sucesso']) && $_GET['sucesso'] == 2) {
-        $mensagem = "🗑️ Produto excluído com sucesso!";
+        $mensagem = "Produto excluído com sucesso!";
     }
 
     // Mensagem de cadastro
     if (isset($_GET['sucesso']) && $_GET['sucesso'] == 1) {
-        $mensagem = "✅ Produto cadastrado com sucesso!";
+        $mensagem = "Produto cadastrado com sucesso!";
     }
 
-    // Mensagem de edição (ADICIONEI ESTA LINHA)
+    // Mensagem de edição
     if (isset($_GET['sucesso']) && $_GET['sucesso'] == 3) {
-        $mensagem = "✏️ Produto atualizado com sucesso!";
+        $mensagem = "Produto atualizado com sucesso!";
     }
 
     // Buscar produtos e categorias
     $produtos = $dashboardModel->getProdutosRecentes();
     $categorias = $dashboardModel->getCategorias();
-    $db_status = "✅ Conectado";
+    $db_status = "Conectado";
 
 } catch (Exception $e) {
-    $db_status = "❌ Erro: " . $e->getMessage();
+    $db_status = "Erro: " . $e->getMessage();
     $produtos = [];
     $categorias = [];
 }
@@ -117,15 +93,15 @@ if (isset($_FILES['imagem']) && $_FILES['imagem']['error'] === 0) {
         <!-- Sidebar -->
         <div class="sidebar">
             <div class="logo">
-                <h2>🎲 Admin Panel</h2>
+                <h2>Admin Panel</h2>
                 <small>Banco: <?php echo $db_status; ?></small>
             </div>
             <nav class="sidebar-nav">
                 <ul>
-                    <li><a href="dashboard.php">📊 Dashboard</a></li>
-                    <li class="active"><a href="produtos.php">🎯 Produtos</a></li>
-                    <li><a href="categorias.php">📁 Categorias</a></li>
-                    <li><a href="../lojinha/index.php" target="_blank">🏠 Ver Loja</a></li>
+                    <li><a href="dashboard.php">Dashboard</a></li>
+                    <li class="active"><a href="produtos.php">Produtos</a></li>
+                    <li><a href="categorias.php">Categorias</a></li>
+                    <li><a href="../lojinha/index.php" target="_blank">Ver Loja</a></li>
                 </ul>
             </nav>
         </div>
@@ -138,7 +114,7 @@ if (isset($_FILES['imagem']) && $_FILES['imagem']['error'] === 0) {
                     <p>Cadastre e gerencie os produtos da loja</p>
                 </div>
                 <div class="header-right">
-                    <button class="btn-primary" onclick="abrirModal()">➕ Novo Produto</button>
+                    <button class="btn-primary" onclick="abrirModal()">Novo Produto</button>
                 </div>
             </header>
 
@@ -178,12 +154,10 @@ if (isset($_FILES['imagem']) && $_FILES['imagem']['error'] === 0) {
                                     <td>#<?php echo $produto['ID']; ?></td>
                                     <td>
                                         <?php
-                                            $imgPath = $produto['IMG'] ?? '';
-                                            $finalPath = '../lojinha/' . ltrim($imgPath, '/');
-                                            if (!empty($imgPath) && file_exists($finalPath)) {
-                                                echo "<img src='$finalPath' alt='{$produto['NOME']}' class='product-thumb'>";
+                                            if (!empty($produto['IMG'])) {
+                                                echo "<img src='imagem.php?id={$produto['ID']}' alt='{$produto['NOME']}' class='product-thumb'>";
                                             } else {
-                                                echo "<div class='no-image'>📷</div>";
+                                                echo "<div class='no-image'>Sem imagem</div>";
                                             }
                                         ?>
                                     </td>
@@ -194,8 +168,8 @@ if (isset($_FILES['imagem']) && $_FILES['imagem']['error'] === 0) {
                                     <td><?php echo $produto['TEMPO']; ?></td>
                                     <td>
                                         <div class="action-buttons">
-                                            <button class="btn-small btn-edit" onclick="editarProduto(<?php echo $produto['ID']; ?>)">✏️</button>
-                                            <button class="btn-small btn-delete" onclick="excluirProduto(<?php echo $produto['ID']; ?>)">🗑️</button>
+                                            <button class="btn-small btn-edit" onclick="editarProduto(<?php echo $produto['ID']; ?>)">Editar</button>
+                                            <button class="btn-small btn-delete" onclick="excluirProduto(<?php echo $produto['ID']; ?>)">Excluir</button>
                                         </div>
                                     </td>
                                 </tr>
@@ -214,7 +188,7 @@ if (isset($_FILES['imagem']) && $_FILES['imagem']['error'] === 0) {
     <div id="modalProduto" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3>➕ Cadastrar Novo Produto</h3>
+                <h3>Cadastrar Novo Produto</h3>
                 <button class="close-modal" onclick="fecharModal()">×</button>
             </div>
             <form method="POST" enctype="multipart/form-data" class="product-form">
@@ -259,7 +233,7 @@ if (isset($_FILES['imagem']) && $_FILES['imagem']['error'] === 0) {
                 </div>
                 <div class="form-actions">
                     <button type="button" class="btn-cancel" onclick="fecharModal()">Cancelar</button>
-                    <button type="submit" class="btn-primary">💾 Salvar</button>
+                    <button type="submit" class="btn-primary">Salvar</button>
                 </div>
             </form>
         </div>
